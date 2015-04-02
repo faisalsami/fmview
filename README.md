@@ -9,5 +9,7 @@ Please visit the following url for a live version running on OSEHRA Vista versio
 ##Setup Instructions:
 
 1) Move to ewd directory in your ewdjs setup e.g. /home/youruser/ewdjs/www/ewd/
+
 2) Do git clone https://github.com/faisalsami/fmview.git
+
 3) Copy the fmview.js to your node_modules folder at ewdjs parent directory.

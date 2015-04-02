@@ -107,9 +107,7 @@ treeChart.prototype.graphTree = function(config) {
         // view for upward chart.
         var nodeSpace = 50;
         var tree = d3.layout.tree().sort(sortByDate).nodeSize([nodeSpace, 0]);
-        if (forUpward) {
-            tree.size([config.chartWidth, config.chartHeight]);
-        }
+        
         var nodes = tree.nodes(originalData);
         var links = tree.links(nodes);
         // Offset x-position for downward to view the left most record.

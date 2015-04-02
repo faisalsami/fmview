@@ -1,0 +1,42 @@
+svg{
+    cursor: all-scroll;
+    width: inherit;
+}
+.centralText{
+    font: 23px sans-serif;
+    fill: #222;
+    font-weight: bold;
+}
+.downwardNode circle{
+    fill: #fff;
+    stroke: #007aff;
+    stroke-width: 2.5px;
+}
+.upwardNode circle {
+    fill: #fff;
+    stroke: #60c560;
+    stroke-width: 2.5px;
+}
+.downwardNode text,
+.upwardNode text {
+    font: 12px sans-serif;
+    font-weight:bold;
+}
+.downwardLink {
+    fill: none;
+    stroke: #007aff;
+    stroke-width: 3px;
+    opacity: 0.2;
+}
+.upwardLink {
+    fill: none;
+    stroke: #60c560;
+    stroke-width: 3px;
+    opacity: 0.2;
+}
+#content{
+    margin-left: 5%;
+}
+.container {
+    width:100%;
+}

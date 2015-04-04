@@ -41,6 +41,16 @@ EWD.application = {
             event.preventDefault();
             EWD.application.GenerateChart($('#selectedFile').select2('val'));
         });
+        var getParameterByName = function(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+        var initfile = getParameterByName('file');
+        if(parseFloat(initfile)>0){
+            EWD.application.GenerateChart(initfile);
+        }
     },
 
     onPageSwap: {

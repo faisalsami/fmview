@@ -166,7 +166,7 @@ function doTheTreeViz(control) {
             $('#header1').html(header1Text);
             var primary = "Primary Files: " + cnt;
             $('#primary').html(primary);
-            var secondary = "Dependent Files: " + dcnt;
+            var secondary = "Required Files: " + dcnt;
             $('#secondary').html(secondary);
             d3.select("#toolTip").style("left", (selectedNode.px + 10) + "px")
                 .style("top", (d3.event.pageY) + "px")

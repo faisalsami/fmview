@@ -37,7 +37,68 @@ var getChildNode = function(filename,ewd){
     return result;
 };
 
-var getFilePointers = function(fileId, ewd) {
+var getFilePointers = function(fileId, ewd){
+    var results = [];
+    var filePT = new ewd.mumps.GlobalNode("DD", [fileId]);
+    filePT._forRange('0', 'A', function(name, node) {
+        if(name == '0') return;
+        if(isNaN(name)) return;
+        var field0 = new ewd.mumps.GlobalNode("DD", [fileId, name, '0']);
+        var field0arr = field0._value.split('^');
+        if(field0arr[1].indexOf("P") > -1){
+            if(field0arr[2].indexOf(",") > -1){
+                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], [field0arr[2].split('(')[1].split(',')[0], '0']);
+                if(pfile0._exists){
+                    var pfileName = '';
+                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
+                    results.push({
+                        "name": pfileName,
+                        "children": []
+                    });
+                }
+            }else {
+                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], ['0']);
+                if(pfile0._exists){
+                    var pfileName = '';
+                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
+                    results.push({
+                        "name": pfileName,
+                        "children": []
+                    });
+                }
+            }
+        }
+        if(field0arr[1].indexOf("V") > -1){
+            var vpnode = new ewd.mumps.GlobalNode("DD", [fileId, name, "V", "B"]);
+            vpnode._forEach(function(vfile, vfnode) {
+                var file = new ewd.mumps.GlobalNode("DIC", [vfile, '0']);
+                var pfileName = '';
+                var pfileName = file._value.split('^')[0] + ' [' + vfile + ']';
+                results.push({
+                    "name": pfileName,
+                    "children": []
+                });
+            });
+        }
+        var mfile = parseFloat(field0arr[1]);
+        if(mfile>0){
+            var mfile0 = new ewd.mumps.GlobalNode("DD", [mfile, '0']);
+            if(mfile0._exists){
+                var mfileName = mfile0._value.split('^')[0] + ' [' + mfile + ']';
+                var mresults = getFilePointers(mfile, ewd);
+                if(mresults.length > 0){
+                    results.push({
+                        "name" : mfileName,
+                        "children": mresults
+                    });
+                }
+            }
+        }
+    });
+    return results;
+};
+
+var prepareData = function(fileId, ewd) {
     var file0 = new ewd.mumps.GlobalNode("DIC", [fileId, '0']);
     var fileName = '';
     fileName = file0._value.split('^')[0] + ' [' + fileId + ']';
@@ -57,48 +118,8 @@ var getFilePointers = function(fileId, ewd) {
             getChildNode(name,ewd)
         );
     });
-    var filePT = new ewd.mumps.GlobalNode("DD", [fileId]);
-    filePT._forRange('0', 'A', function(name, node) {
-        if(name == '0') return;
-        if(isNaN(name)) return;
-        var field0 = new ewd.mumps.GlobalNode("DD", [fileId, name, '0']);
-        var field0arr = field0._value.split('^');
-        if(field0arr[1].indexOf("P") > -1){
-            if(field0arr[2].indexOf(",") > -1){
-                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], [field0arr[2].split('(')[1].split(',')[0], '0']);
-                if(pfile0._exists){
-                    var pfileName = '';
-                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
-                    upward.children.push({
-                        "name": pfileName,
-                        "children": []
-                    });
-                }
-            }else {
-                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], ['0']);
-                if(pfile0._exists){
-                    var pfileName = '';
-                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
-                    upward.children.push({
-                        "name": pfileName,
-                        "children": []
-                    });
-                }
-            }
-        }
-        if(field0arr[1].indexOf("V") > -1){
-            var vpnode = new ewd.mumps.GlobalNode("DD", [fileId, name, "V", "B"]);
-            vpnode._forEach(function(vfile, vfnode) {
-                var file = new ewd.mumps.GlobalNode("DIC", [vfile, '0']);
-                var pfileName = '';
-                var pfileName = file._value.split('^')[0] + ' [' + vfile + ']';
-                upward.children.push({
-                    "name": pfileName,
-                    "children": []
-                });
-            });
-        }
-    });
+    var filePts = getFilePointers(fileId, ewd);
+    upward.children = filePts;
     return {
         "name": fileName,
         "fileDD" : {
@@ -131,7 +152,7 @@ module.exports = {
             }
         }
         ewd.session.$('fileIdSelected')._value = params.fileId;
-        var results = getFilePointers(params.fileId, ewd);
+        var results = prepareData(params.fileId, ewd);
         return {
             results: results,
             error: ''

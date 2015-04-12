@@ -2,26 +2,35 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Vista Concept Map</title>
+        <title>Vista Fileman Concept Map</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="author" content="Qazi Faisal Sami">
         <link rel="stylesheet" type="text/css" href="ConceptMap.css">
         <script type="text/javascript" src="d3/d3.v3.min.js"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
         <script type="text/javascript" src="ConceptMap.js"></script>
     </head>
     <body>
-        <div>
-            <strong>Vista Packages Concept Browser</strong> generated using <strong>D3.js</strong><span style="color:darslateblue;"> <small>click a node to focus, double click to open file</small></span>
-        </div>
-        <br><br><br>
-        <div id="chart">
+        <div class="page-wrap">
+            <div>
+                <strong>Vista Fileman Concept Map</strong> generated using <strong>D3.js</strong><span style="color:darslateblue;">
+                <br><small>Click any node to focus, click the same node again to go back. <br>Double click any file to view detailed dependencies on file level</small></span>
+            </div>
+            <br><br><br>
+            <div id="chart">
 
+            </div>
+            <div id="toolTip" class="tooltip" style="opacity: 0; left: 681px; top: 1203px;">
+                <div id="header1" class="header"></div>
+                <div id="primary" style="color:#d62728;"></div>
+                <div id="secondary" style="color:#2ca02c;"></div>
+                <div class="tooltipTail"></div>
+            </div>
         </div>
-        <div id="toolTip" class="tooltip" style="opacity: 0; left: 681px; top: 1203px;">
-            <div id="header1" class="header"></div>
-            <div id="primary" style="color:#d62728;"></div>
-            <div id="secondary" style="color:#2ca02c;"></div>
-            <div class="tooltipTail"></div>
-        </div>
+        <footer style="position: fixed;bottom: 0">
+            <p>Posted by: Faisal Sami</p>
+            <p>Contact: <a href="mailto:faisalsami78@gmail.com">faisalsami78@gmail.com</a></p>
+            <p>LinkedIn: <a href="https://pk.linkedin.com/in/faisalsami">faisalsami</a></p>
+        </footer>
     </body>
 </html>

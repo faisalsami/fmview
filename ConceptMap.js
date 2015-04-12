@@ -54,10 +54,10 @@ function doTheTreeViz(control) {
         .attr("class", "node")
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .on("dblclick", function(d){
+            control.nodeClickInProgress=false;
             if(parseFloat(d.key)>0){
                 var url = window.location.href;
                 var uarr = url.split("/");
-                control.nodeClickInProgress=false;
                 window.open(uarr[0] + '//' + uarr[2] + '/' + uarr[3] + '/' + uarr[4] + '/fileselect.html?file=' + d.key);
             }
         })
@@ -70,6 +70,9 @@ function doTheTreeViz(control) {
                         control.nodeClickInProgress = false;
                         if (control.options.nodeFocus) {
                             d.isCurrentlyFocused = !d.isCurrentlyFocused;
+                            if(!d.isCurrentlyFocused){
+                                resetNode(d);
+                            }
                             doTheTreeViz(makeFilteredData(control));
                         }
                     }
@@ -108,6 +111,7 @@ function doTheTreeViz(control) {
                 }else{
                     cnt = cnt + 1;
                 }
+                if(selectedNode.isCurrentlyFocused) return false;
                 return true;
             }else{
                 return false;
@@ -124,6 +128,7 @@ function doTheTreeViz(control) {
                 else{
                     dcnt = dcnt + 1;
                 }
+                if(selectedNode.isCurrentlyFocused) return false;
                 return true;
             }else{
                 return false;
@@ -137,6 +142,7 @@ function doTheTreeViz(control) {
             text.filter ( function (d) {
                 var lnk = areWeConnected (selectedNode,d);
                 if(lnk == null) return false;
+                if(selectedNode.isCurrentlyFocused) return false;
                 if(lnk.type == 'P') return true;
                 return false;
                 //return ((d.type == 'P')&&(areWeConnected (selectedNode,d)));
@@ -145,9 +151,10 @@ function doTheTreeViz(control) {
             text.filter ( function (d) {
                 var lnk = areWeConnected (selectedNode,d);
                 if(lnk == null) return false;
+                if(selectedNode.isCurrentlyFocused) return false;
                 if(lnk.type == 'S') return true;
                 return false;
-                return ((d.type == 'S')&&(areWeConnected (selectedNode,d)));
+                //return ((d.type == 'S')&&(areWeConnected (selectedNode,d)));
             } )
                 .style("fill", control.options.routeFocusStrokeSecondary);
         }
@@ -185,16 +192,17 @@ function doTheTreeViz(control) {
         return null;
     }
     function resetNode(selectedNode) {
+        $('#header1').text("");
+        $('#primary').text("");
+        $('#secondary').text("");
+        d3.select("#toolTip").style("opacity", "0");
+        if(selectedNode.isCurrentlyFocused) return;
         link.style("stroke", control.options.routeStroke)
             .style("stroke-width", control.options.routeStrokeWidth)
             .style("stroke-opacity","0.2");
         if (text) {
             text.style("fill", 'Black');
         }
-        $('#header1').text("");
-        $('#primary').text("");
-        $('#secondary').text("");
-        d3.select("#toolTip").style("opacity", "0");
     }
     if (control.options.nodeLabel) {
         // text is done once for shadow as well as for text
@@ -394,7 +402,7 @@ function initialize () {
         control.nodes = data.nodes;
         control.links = data.links;
         control.color = d3.scale.category20();
-        control.clickHack = 200;
+        control.clickHack = 300;
 
         control.svg = d3.select(control.divName)
             .append("svg:svg")

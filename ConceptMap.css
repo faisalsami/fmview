@@ -1,11 +1,13 @@
 
    body {
-    position: relative;
-    font-family: "Helvetica Neue", Helvetica, sans-serif;
-    margin: 1em auto 4em 500px;
-    width: 960px;
+       height: 100%;
    }
-
+   .page-wrap{
+       position: relative;
+       font-family: "Helvetica Neue", Helvetica, sans-serif;
+       margin: 1em auto 4em 500px;
+       width: 960px;
+   }
    svg {
     font: 10px sans-serif;
        width: 1500px;

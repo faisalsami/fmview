@@ -1,10 +1,12 @@
 # fmview
 
-FM View generates the dependency chart tree to show the in and out pointers of a particualr Fileman File.
+FM View generates the Concept Map for VistA Fileman files among packages. It also generates dependency chart tree to show the in and out pointers of a particualr Fileman File by double clicking any files. User can focus on particular file or package in the concept map diagram by just click once, and click again to go back to concept map.
+
+Currently the Concept Map is generated only for VistA FOIA OSEHRA release.
 
 It requires a Vista server along with ewdjs configured. For further details visit [http://ewdjs.com](http://ewdjs.com/)
 
-Please visit the following url for a live version running on OSEHRA Vista version. [http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html](http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html)
+Please visit the following url for a live version running on OSEHRA Vista release. [http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html](http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html)
 
 ##Setup Instructions:
 

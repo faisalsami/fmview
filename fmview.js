@@ -32,7 +32,12 @@ var getChildNode = function(filename,ewd){
         result.children = [];
     }else{
         var file = new ewd.mumps.GlobalNode("DD", [filename, '0', 'UP']);
-        result = getChildNode(file._value,ewd);
+        if(file._exists){
+            result = getChildNode(file._value,ewd);
+        }
+        else{
+            result = null;
+        }
     }
     return result;
 };
@@ -114,9 +119,10 @@ var prepareData = function(fileId, ewd) {
     };
     var filePT = new ewd.mumps.GlobalNode("DD", [fileId, '0', 'PT']);
     filePT._forEach(function(name, node) {
-        downward.children.push(
-            getChildNode(name,ewd)
-        );
+        var result = getChildNode(name,ewd);
+        if(result !== null){
+            downward.children.push(result);
+        }
     });
     var filePts = getFilePointers(fileId, ewd);
     upward.children = filePts;

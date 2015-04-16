@@ -6,12 +6,8 @@ Currently the Concept Map is generated only for VistA FOIA OSEHRA release.
 
 It requires a Vista server along with ewdjs configured. For further details visit [http://ewdjs.com](http://ewdjs.com/)
 
-Please visit one of the following url for a live version running on OSEHRA Vista release. 
+Please visit the following url for a live version running under OSEHRA FOIA VistA release. 
 
-####Amazon 
-[http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html](http://ec2-54-172-186-142.compute-1.amazonaws.com:8080/ewd/fmview/index.html)
-
-####Google cloud 
 [http://104.197.41.218:8080/ewd/fmview/index.html](http://104.197.41.218:8080/ewd/fmview/index.html)
 
 ##Setup Instructions:

@@ -1,4 +1,6 @@
 // Re-usable core VistA interface functions
+
+//getFilesByName -- used to search a fileman file by name; using the B index of DIC global
 var getFilesByName = function(prefix, max, ewd) {
   var dicIndex = new ewd.mumps.GlobalNode("DIC", ["B"]);
   var results = [];
@@ -22,16 +24,19 @@ var getFilesByName = function(prefix, max, ewd) {
   };
 };
 
-var getChildNode = function(filename,ewd){
+//getChildNode -- return back the file object
+//                If exists and is not multiple then it will be returned back file from DIC global
+//                otherwise it is assumed that it is multiple and look for parent file and get the file object through recursive call
+var getChildNode = function(fileNumber,ewd){
     var result = {};
-    var file = new ewd.mumps.GlobalNode("DIC", [filename, '0']);
+    var file = new ewd.mumps.GlobalNode("DIC", [fileNumber, '0']);
     if(file._exists){
-        var cfileName = '';
-        var cfileName = file._value.split('^')[0] + ' [' + filename + ']';
-        result.name = cfileName;
+        var fileName = '';
+        var fileName = file._value.split('^')[0] + ' [' + fileNumber + ']';
+        result.name = fileName;
         result.children = [];
     }else{
-        var file = new ewd.mumps.GlobalNode("DD", [filename, '0', 'UP']);
+        var file = new ewd.mumps.GlobalNode("DD", [fileNumber, '0', 'UP']);
         if(file._exists){
             result = getChildNode(file._value,ewd);
         }
@@ -42,59 +47,71 @@ var getChildNode = function(filename,ewd){
     return result;
 };
 
-var getFilePointers = function(fileId, ewd){
+//getFilePointers -- return a fileman file's pointer fields in results array
+//                   It also include multiple field and traverse that multiple file to look for pointer file through recursive call
+var getFilePointers = function(fileNumber, ewd){
     var results = [];
-    var filePT = new ewd.mumps.GlobalNode("DD", [fileId]);
-    filePT._forRange('0', 'A', function(name, node) {
-        if(name == '0') return;
-        if(isNaN(name)) return;
-        var field0 = new ewd.mumps.GlobalNode("DD", [fileId, name, '0']);
-        var field0arr = field0._value.split('^');
-        if(field0arr[1].indexOf("P") > -1){
-            if(field0arr[2].indexOf(",") > -1){
-                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], [field0arr[2].split('(')[1].split(',')[0], '0']);
-                if(pfile0._exists){
-                    var pfileName = '';
-                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
+    var file = new ewd.mumps.GlobalNode("DD", [fileNumber]);
+    //Traverse all fields of fileman file through DD Global
+    file._forRange('0', 'A', function(fieldNumber, node) {
+        if(fieldNumber == '0') return;
+        if(isNaN(fieldNumber)) return;
+        var field = new ewd.mumps.GlobalNode("DD", [fileNumber, fieldNumber, '0']);
+        var field0Node = field._value.split('^');
+        //Look for the second piece of the ^DD(fileNumber, fieldNumber, 0) node for the pointer or Variable Pointer field
+        //if second piece contains P means it is a pointer type field
+        if(field0Node[1].indexOf("P") > -1){
+            //If Second Piece contains , means there is global with file number like TIU(8925,
+            if(field0Node[2].indexOf(",") > -1){
+                var pointedFile0 = new ewd.mumps.GlobalNode(field0Node[2].split('(')[0], [field0Node[2].split('(')[1].split(',')[0], '0']);
+                if(pointedFile0._exists){
+                    var fileName = '';
+                    fileName = pointedFile0._value.split('^')[0] + ' [' + pointedFile0._value.split('^')[1] + ']';
                     results.push({
-                        "name": pfileName,
+                        "name": fileName,
                         "children": []
                     });
                 }
-            }else {
-                var pfile0 = new ewd.mumps.GlobalNode(field0arr[2].split('(')[0], ['0']);
-                if(pfile0._exists){
-                    var pfileName = '';
-                    pfileName = pfile0._value.split('^')[0] + ' [' + pfile0._value.split('^')[1] + ']';
+            }
+            //else we assume that Socond piece would be containg the global reference without file number within node like ^DPT(
+            else {
+                var pointedFile0 = new ewd.mumps.GlobalNode(field0Node[2].split('(')[0], ['0']);
+                if(pointedFile0._exists){
+                    var fileName = '';
+                    fileName = pointedFile0._value.split('^')[0] + ' [' + pointedFile0._value.split('^')[1] + ']';
                     results.push({
-                        "name": pfileName,
+                        "name": fileName,
                         "children": []
                     });
                 }
             }
         }
-        if(field0arr[1].indexOf("V") > -1){
-            var vpnode = new ewd.mumps.GlobalNode("DD", [fileId, name, "V", "B"]);
-            vpnode._forEach(function(vfile, vfnode) {
+        //if second piece contains V means it is a Variable Pointer type field
+        if(field0Node[1].indexOf("V") > -1){
+            //Get all the files from the B index of the variable pointer field node
+            var vpointerfiles = new ewd.mumps.GlobalNode("DD", [fileNumber, fieldNumber, "V", "B"]);
+            vpointerfiles._forEach(function(vfile, vfnode) {
                 var file = new ewd.mumps.GlobalNode("DIC", [vfile, '0']);
-                var pfileName = '';
-                var pfileName = file._value.split('^')[0] + ' [' + vfile + ']';
+                var fileName = '';
+                var fileName = file._value.split('^')[0] + ' [' + vfile + ']';
                 results.push({
-                    "name": pfileName,
+                    "name": fileName,
                     "children": []
                 });
             });
         }
-        var mfile = parseFloat(field0arr[1]);
-        if(mfile>0){
-            var mfile0 = new ewd.mumps.GlobalNode("DD", [mfile, '0']);
-            if(mfile0._exists){
-                var mfileName = mfile0._value.split('^')[0] + ' [' + mfile + ']';
-                var mresults = getFilePointers(mfile, ewd);
-                if(mresults.length > 0){
+        //Check to see if the field is multiple if the field is multiple then it will always have some float value on the second piece
+        var multipleFileNumber = parseFloat(field0Node[1]);
+        if(multipleFileNumber>0){
+            var multipleFile = new ewd.mumps.GlobalNode("DD", [multipleFileNumber, '0']);
+            if(multipleFile._exists){
+                var fileName = multipleFile._value.split('^')[0] + ' [' + multipleFileNumber + ']';
+                //If multiple file exists then do recursive call to get all pointers of that multiple file
+                var multipleResults = getFilePointers(multipleFileNumber, ewd);
+                if(multipleResults.length > 0){
                     results.push({
-                        "name" : mfileName,
-                        "children": mresults
+                        "name" : fileName,
+                        "children": multipleResults
                     });
                 }
             }
@@ -103,10 +120,13 @@ var getFilePointers = function(fileId, ewd){
     return results;
 };
 
-var prepareData = function(fileId, ewd) {
-    var file0 = new ewd.mumps.GlobalNode("DIC", [fileId, '0']);
+//Prepare data for the tree
+//upward object's children array contains all the files that used as pointed file in pointer or variable pointer fields of that file (in Pointers)
+//donward object's children array contains all the files that have that file used as pointed file in their fields (out Pointers)
+var prepareTreeData = function(fileNumber, ewd) {
+    var file = new ewd.mumps.GlobalNode("DIC", [fileNumber, '0']);
     var fileName = '';
-    fileName = file0._value.split('^')[0] + ' [' + fileId + ']';
+    fileName = file._value.split('^')[0] + ' [' + fileNumber + ']';
     var downward = {
         "direction":"downward",
         "name":"origin",
@@ -117,15 +137,16 @@ var prepareData = function(fileId, ewd) {
         "name":"origin",
         "children": []
     };
-    var filePT = new ewd.mumps.GlobalNode("DD", [fileId, '0', 'PT']);
+    // The "PT" node of file zero node contains all the files in which that file is used as a pointed file.
+    var filePT = new ewd.mumps.GlobalNode("DD", [fileNumber, '0', 'PT']);
     filePT._forEach(function(name, node) {
         var result = getChildNode(name,ewd);
         if(result !== null){
             downward.children.push(result);
         }
     });
-    var filePts = getFilePointers(fileId, ewd);
-    upward.children = filePts;
+    var files = getFilePointers(fileNumber, ewd);
+    upward.children = files;
     return {
         "name": fileName,
         "fileDD" : {
@@ -158,7 +179,7 @@ module.exports = {
             }
         }
         ewd.session.$('fileIdSelected')._value = params.fileId;
-        var results = prepareData(params.fileId, ewd);
+        var results = prepareTreeData(params.fileId, ewd);
         return {
             results: results,
             error: ''

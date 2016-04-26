@@ -8,7 +8,7 @@ It requires a Vista server along with ewdjs configured. For further details visi
 
 Please visit the following url for a live version running under OSEHRA FOIA VistA release. 
 
-[http://23.251.159.149:8080/ewd/fmview/index.html](http://23.251.159.149:8080/ewd/fmview/index.html)
+[http://162.222.183.155:8088/ewd/fmview/](http://162.222.183.155:8088/ewd/fmview/)
 
 ##Setup Instructions:
 

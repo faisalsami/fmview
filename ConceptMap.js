@@ -348,7 +348,7 @@ function initialize () {
 
     //some basic options
     var newoptions = {  nodeLabel:"label",
-        nodeResize:"count", height:18000,
+        nodeResize:"count", height:20000,
         nodeFocus:true, radius:3, charge:-500};
     // defaults
     control.options = $.extend({
